@@ -32,7 +32,7 @@ int main()
     sf::TcpSocket socket;
 
     std::vector < sf::TcpSocket *> clients;
-    sf::SocketSelector selectorr;
+    sf::SocketSelector selector;
     selector.add( listener );
 
     while( true )
