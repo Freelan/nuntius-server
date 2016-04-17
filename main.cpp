@@ -12,10 +12,14 @@ std::string receiveMessage( sf::TcpSocket& socket )
 {
     sf::Packet packet;
     std::string message;
-    socket.receive( packet );
-    packet >> message;
-
-    return message;
+    if( socket.receive( packet ) == sf::Socket::Done )
+    {
+        packet >> message;
+        return message;
+    }else
+    {
+        return "whoops!";
+    }
 }
 
 int main()
@@ -58,14 +62,18 @@ int main()
                     std::string killMessage = "kill";
                     std::string receivedMessage = receiveMessage( *clients[ i ] );
 
-                    if( receivedMessage == killMessage )
+                    if( receivedMessage == killMessage || receivedMessage == "whoops!" )
                     {
                         std::cout << clients[ i ]->getRemoteAddress() << " disconnected!" << std::endl;
                         selector.remove( *clients[i] );
                     }else
                     {
-                        std::cout << receivedMessage << std::endl;
-                        //std::cout << "Odebrano " << received << " bajtów od " << clients[ i ]->getRemoteAddress() << std::endl;
+                        std::cout << "[" << clients[ i ]->getRemoteAddress() << "] " << receivedMessage << std::endl;
+
+                        for( int i = 0; i < clients.size(); i++ )
+                        {
+                            sendMessage( *clients[ i ], receivedMessage );
+                        }
                     }
                     // tutaj robimy coś z odebranymi dany
                     //...
