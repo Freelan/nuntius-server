@@ -28,36 +28,31 @@ int main()
     sf::TcpListener listener;
     listener.listen(55001);
     std::cout << "Listening..." << std::endl;
-    // Wait for a connection
+    
     sf::TcpSocket socket;
 
-
-    std::vector < sf::TcpSocket *> clients; // tutaj przechowujemy klientów
-    sf::SocketSelector selector; // selektor
-    selector.add( listener ); // dodajemy gniazdo nasłuchujące
+    std::vector < sf::TcpSocket *> clients;
+    sf::SocketSelector selectorr;
+    selector.add( listener );
 
     while( true )
     {
-        if( selector.wait( sf::seconds( 2 ) ) ) // jeśli metoda wait() zwróci true, to znaczy, że któreś z dodanych gniazd jest gotowe do odbioru
-        {                                          // jako argument podajemy czas, przez który ma czekać na dane
-            if( selector.isReady( listener ) ) // metoda isReady() sprawdza, czy dane gniazdo ma dane do odebrania
-            // jeśli do motedy isReady() przekażemy gniazdo nasłuchujące, true oznacza, że ktoś chce się do niego podłaczyć
+        if( selector.wait( sf::seconds( 2 ) ) ) 
+        {
+            if( selector.isReady( listener ) )
             {
                 sf::TcpSocket * tmp = new sf::TcpSocket;
-                listener.accept( * tmp ); // skoro ktoś chce się do nas połączyć, to go akceptujemy
-                clients.push_back( tmp ); // i dodajemy go do listy
-                selector.add( * tmp ); // oraz do selektora, żeby można było od niego odbierać dane
+                listener.accept( * tmp );
+                clients.push_back( tmp );
+                selector.add( * tmp );
 
                 std::cout << "New client connected: " << tmp->getRemoteAddress() << std::endl;
                 sendMessage( *tmp, "Connected!" );
-
-                // nie zapomnij, by usunąć(za pomocą delete) gniazdo, kiedy się rozłączy
             }
 
-            // pętla przechodząca po kontenerze gniazd (zależy od typu kontenera)
             for( int i = 0; i < clients.size(); i++ )
             {
-                if( selector.isReady( * clients[ i ] ) ) // *clients[i] coś nam wysłał
+                if( selector.isReady( * clients[ i ] ) )
                 {
                     std::string killMessage = "kill";
                     std::string receivedMessage = receiveMessage( *clients[ i ] );
@@ -75,12 +70,9 @@ int main()
                             sendMessage( *clients[ i ], receivedMessage );
                         }
                     }
-                    // tutaj robimy coś z odebranymi dany
-                    //...
                 }
             }
             //...
-            // reszta kodu serwera
         }
     }
 
