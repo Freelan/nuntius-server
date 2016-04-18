@@ -52,7 +52,7 @@ int main()
 
             for( int i = 0; i < clients.size(); i++ )
             {
-                if( selector.isReady( * clients[ i ] ) )
+                if( selector.isReady( * clients[i] ) )
                 {
                     std::string killMessage = "kill";
                     std::string receivedMessage = receiveMessage( *clients[ i ] );
@@ -63,11 +63,11 @@ int main()
                         selector.remove( *clients[i] );
                     }else
                     {
-                        std::cout << "[" << clients[ i ]->getRemoteAddress() << "] " << receivedMessage << std::endl;
-
+                        std::cout << "[" << clients[i]->getRemoteAddress() << "] " << receivedMessage << std::endl;
                         for( int i = 0; i < clients.size(); i++ )
                         {
-                            sendMessage( *clients[ i ], receivedMessage );
+                            sendMessage( *clients[i], clients[i]->getRemoteAddress().toString() );
+                            sendMessage( *clients[i], receivedMessage );
                         }
                     }
                 }
