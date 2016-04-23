@@ -35,6 +35,8 @@ int main()
     sf::SocketSelector selector;
     selector.add( listener );
 
+    std::vector<sf::IpAddress>addresses;
+
     while( true )
     {
         if( selector.wait( sf::seconds( 2 ) ) ) 
@@ -46,28 +48,32 @@ int main()
                 clients.push_back( tmp );
                 selector.add( * tmp );
 
+                sf::IpAddress tmpIp = tmp->getRemoteAddress();
+                addresses.push_back( tmpIp );
+
                 std::cout << "New client connected: " << tmp->getRemoteAddress() << std::endl;
+                //sendMessage( *tmp, tmpIp.toString() );
                 sendMessage( *tmp, "Connected!" );
             }
 
             for( int i = 0; i < clients.size(); i++ )
             {
-                if( selector.isReady( * clients[i] ) )
+                if( selector.isReady( *clients[i] ) )
                 {
                     std::string killMessage = "kill";
-                    std::string receivedMessage = receiveMessage( *clients[ i ] );
+                    std::string receivedMessage = receiveMessage( *clients[i] );
 
                     if( receivedMessage == killMessage || receivedMessage == "whoops!" )
                     {
-                        std::cout << clients[ i ]->getRemoteAddress() << " disconnected!" << std::endl;
+                        std::cout << clients[i]->getRemoteAddress() << " disconnected!" << std::endl;
                         selector.remove( *clients[i] );
                     }else
                     {
                         std::cout << "[" << clients[i]->getRemoteAddress() << "] " << receivedMessage << std::endl;
-                        for( int i = 0; i < clients.size(); i++ )
+                        for( int j = 0; j < clients.size(); j++ )
                         {
-                            sendMessage( *clients[i], clients[i]->getRemoteAddress().toString() );
-                            sendMessage( *clients[i], receivedMessage );
+                            sendMessage( *clients[j], addresses[i].toString() );
+                            sendMessage( *clients[j], receivedMessage );
                         }
                     }
                 }
